@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 ####initialisation variables####
 
-lambda0=600*10**(-9)
+lambda0=400*10**(-9)
 theta=0
 a=1
 N=100
@@ -14,7 +14,7 @@ h=L/N
 
 
 epsm=1 #coef mu et epsilon
-epsd=3+1j
+epsd=3+10j
 mud=1
 
 k0=2*np.pi/lambda0
@@ -23,8 +23,8 @@ k=(k0*np.cos(theta),k0*np.sin(theta))
 
 #Initialisation de la géométrie de l'objet et du maillage
 
-maillage = np.arange(N)*h
-grid = np.zeros(N)
+maillage = np.arange(N+1)*h
+grid = np.zeros(N+1)
 grid[50:66]=1
 
 
@@ -76,13 +76,14 @@ def mu(X):
 
 def Node(X,i):  #fonction continue
     X=np.where((X>=h*(i-1)) & (X<=h*(i+1)),X,0)
-    X=np.where((X>=h*(i-1)) & (X<=h*i),X/h-i+1,X)
-    return np.where((X>=h*i) & (X<=h*(i+1)),-X/h+i+1,X)
+    X= np.where((X>=h*(i-1)) & (X< h*i),(X-h*(i-1))/h,X)
+    return np.where((X>h*i) & (X<=h*(i+1)),(h*(i+1)-X)/h,X)
 
 def NodePrime(X,i):  #fonction continue
-    X=np.where((X>=h*(i-1)) & (X<=h*(i+1)),X,0)
-    X=np.where((X>=h*(i-1)) & (X<=h*i),1/h,X)
-    return np.where((X>=h*i) & (X<=h*(i+1)),-1/h,X)
+    X = np.where((X>=h*(i-1)) & (X<=h*(i+1)),X,0)
+    X = np.where((X>h*(i-1)) & (X < (h*i)),1/h,X)
+    return np.where((X>h*i) & (X<=h*(i+1)),-1/h,X)
+
 
 #Calcule de la fonction S
 
@@ -113,16 +114,16 @@ def S(x):
 def IntegrateA(i,j):
     d=np.abs(i-j)
     
-    if i>j: #la matrice est symétrique on traitera donc ce cas apres
-        return 0 
-    else:
-        pass
+    # if i>j: #la matrice est symétrique on traitera donc ce cas apres
+    #     return 0 
+    # else:
+    #     pass
     
     if d>=2:
         return 0
     else:
         pass
-    n=99+(N-2)*00
+    n=99+(N-1)*100
     dx=L/n
     x=np.arange(0,L,dx)
     f= NodePrime(x,i)*NodePrime(x,j)/mu(x) + k0**2*epsilon(x)*Node(x,i)*Node(x,j)
@@ -136,11 +137,13 @@ def IntegrateB(i):
     n=199
     dx=2*h/n
     if i == 0 :
+        dx=h/99
         x=np.arange(0,h,dx)
         f=Sapprox(x,i)*Node(x,i)
         return np.sum(f)*dx +(fi(L)-fi(0))*k0*1j
     if i == N-1:
-        x=np.arange(h*(N-1),h*N,dx)
+        dx=h/99
+        x=np.arange(L-h,L+dx,dx)
         f=Sapprox(x,i)*Node(x,i)
         return np.sum(f)*dx +(fi(L)-fi(0))*k0*1j
         
@@ -157,33 +160,64 @@ def IntegrateB(i):
     # return I
 
 B=np.array([])
-A=np.zeros((N,N),dtype=complex)
+A=np.zeros((N+1,N+1),dtype=complex)
 
-for i in range(N):
+for i in range(N+1):
     B=np.append(B,IntegrateB(i))
     
-for i in range(N):
-    for j in range(N):
+for i in range(N+1):
+    for j in range(N+1):
         I=IntegrateA(i,j)
-        A[j,i]=I
         A[i,j]=I
-
+print(A)
+# print(IntegrateA(0,1))
 zeta = np.linalg.solve(A, B)
 
 ud=0
 
 n=99+(N-1)*100
-dx=h*N/n
-x=np.arange(0,L,dx)
+dx=L/n
+x=np.arange(0,L+dx,dx)
 ui=fi(x)
-for i in range(N):
+
+for i in range(N+1):
     ud+=zeta[i]*Node(x,i)
-plt.plot(x,np.real(ud))
-plt.plot(x,np.real(ui))
-plt.plot([55*h,66*h],[0,0],linewidth=4,color="black")
+    
+   
+    
+plt.plot(x,np.real(ud),linewidth=1.2,label="ud",color="#5A9BD5")
+plt.plot(x,np.real(ui),linewidth=1.2,label="ui",color="#E57373")
+
+square_x = [55*h, 55*h, 65*h, 65*h]
+c=np.max(np.maximum(ud,ui))
+square_y = [-c, c, c, -c] 
+plt.fill(square_x, square_y, color="grey", alpha=0.2,label="Objet")
+
+plt.title("Champ d'une source infinie et d'une source objet")
+plt.xlabel('x in metter')
+plt.ylabel('Intensity')
+plt.legend(loc='upper left')
+plt.xlim(0, L)
+plt.tight_layout()
 plt.show()
-plt.plot(x,np.real(ui+ud))
+
+
+
+plt.plot(x,np.real(ui+ud),linewidth=1.2,label="ud + ui",color="#5A9BD5")
+
+square_x = [55*h, 55*h, 65*h, 65*h]
+square_y = [-np.max(ud+ui), np.max(ud+ui), np.max(ud+ui), -np.max(ud+ui)] 
+plt.fill(square_x, square_y, color="grey", alpha=0.2,label="Objet")
+
+plt.title("Champ total")
+plt.xlabel('x in metter')
+plt.ylabel('Intensity')
+plt.legend(loc='upper left')
+plt.xlim(0, L)
+plt.tight_layout()
 plt.show()
+
+
     
         
         
