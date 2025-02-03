@@ -5,16 +5,16 @@ import matplotlib.pyplot as plt
 
 ####initialisation variables####
 
-lambda0=400*10**(-9)
+lambda0=700*10**(-9)
 theta=0
 a=1
-N=100
+N=10
 L=5*10**(-6)
 h=L/N
 
 
 epsm=1 #coef mu et epsilon
-epsd=3+10j
+epsd=3
 mud=1
 
 k0=2*np.pi/lambda0
@@ -25,8 +25,10 @@ k=(k0*np.cos(theta),k0*np.sin(theta))
 
 maillage = np.arange(N+1)*h
 grid = np.zeros(N+1)
-grid[50:66]=1
-
+print(np.size(maillage))
+grid[3:8]=1
+m1=np.min(np.where(grid==1))
+m2=np.max(np.where(grid==1))
 
 
 #Calcul du champ initial
@@ -46,15 +48,14 @@ ui=fi(maillage)
 #Calcul du epsilon r et mu r
 
 def epsilon(X):
-    a=np.min(np.where(grid==1))
-    b=np.max(np.where(grid==1))
-    return np.where((X/h>=a) & (X/h<=b),epsd,epsm)
+    
+    return np.where((X/h>=m1) & (X/h<=m2),epsd,epsm)
+
     
     
 def mu(X):
-    a=np.min(np.where(grid==1))
-    b=np.max(np.where(grid==1))
-    return np.where((X/h>=a) & (X/h<=b),mud,1)
+    
+    return np.where((X/h>=m1) & (X/h<=m2),mud,1)
 
 
 #Fonction de base nodale
@@ -78,6 +79,14 @@ def Sapprox(x,i):
 def S(x):
     return (1-1/mu(x))*fiseconde(x)+k0**2*(epsm-epsilon(x))*fi(x)
 
+n=99+(N-1)*100
+dx=L/n
+x=np.arange(0,L,dx,dtype=complex)
+plt.plot(x,Sapprox(x,2))
+plt.plot(x,Node(x,2))
+plt.plot(x,Sapprox(x,3))
+plt.plot(x,Sapprox(x,4))
+plt.show()
 
 ### Intégration ###
 
@@ -90,7 +99,7 @@ def IntegrateA(i,j):
         pass
     n=99+(N-1)*100
     dx=L/n
-    x=np.arange(0,L,dx)
+    x=np.arange(0,L,dx,dtype=complex)
     f= NodePrime(x,i)*NodePrime(x,j)/mu(x) + k0**2*epsilon(x)*Node(x,i)*Node(x,j)
     return np.sum(f)*dx
 
@@ -100,20 +109,20 @@ def IntegrateB(i):
     dx=2*h/n
     if i == 0 :
         dx=h/99
-        x=np.arange(0,h,dx)
+        x=np.arange(0,h+dx,dx,dtype=complex)
         f=Sapprox(x,i)*Node(x,i)
-        return np.sum(f)*dx +(fi(L)-fi(0))*k0*1j
-    if i == N-1:
+        return np.sum(f,dtype=complex)*dx +(fi(L)-fi(0))*k0*1j
+    if i == N:
         dx=h/99
-        x=np.arange(L-h,L+dx,dx)
+        x=np.arange(L-h,L+dx,dx,dtype=complex)
         f=Sapprox(x,i)*Node(x,i)
-        return np.sum(f)*dx +(fi(L)-fi(0))*k0*1j
+        return np.sum(f,dtype=complex)*dx +(fi(L)-fi(0))*k0*1j
         
         
     else:
-        x=np.arange(h*(i-1),h*(i+1),dx)
+        x=np.arange(h*(i-1),h*(i+1)+dx,dx)
         f=Sapprox(x,i)*Node(x,i)
-        return np.sum(f)*dx 
+        return np.sum(f,dtype=complex)*dx 
         
 
 B=np.array([])
@@ -126,8 +135,6 @@ for i in range(N+1):
     for j in range(N+1):
         I=IntegrateA(i,j)
         A[i,j]=I
-print(A)
-# print(IntegrateA(0,1))
 zeta = np.linalg.solve(A, B)
 
 ud=0
@@ -145,7 +152,7 @@ for i in range(N+1):
 plt.plot(x,np.real(ud),linewidth=1.2,label="ud",color="#5A9BD5")
 plt.plot(x,np.real(ui),linewidth=1.2,label="ui",color="#E57373")
 
-square_x = [55*h, 55*h, 65*h, 65*h]
+square_x = [m1*h, m1*h, m2*h, m2*h]
 c=np.max(np.maximum(ud,ui))
 square_y = [-c, c, c, -c] 
 plt.fill(square_x, square_y, color="grey", alpha=0.2,label="Objet")
@@ -162,7 +169,7 @@ plt.show()
 
 plt.plot(x,np.real(ui+ud),linewidth=1.2,label="ud + ui",color="#5A9BD5")
 
-square_x = [55*h, 55*h, 65*h, 65*h]
+square_x = [50*h, 50*h, 65*h, 65*h]
 square_y = [-np.max(ud+ui), np.max(ud+ui), np.max(ud+ui), -np.max(ud+ui)] 
 plt.fill(square_x, square_y, color="grey", alpha=0.2,label="Objet")
 
