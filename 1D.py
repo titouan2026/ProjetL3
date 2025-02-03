@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 lambda0=700*10**(-9)
 theta=0
 a=1
-N=10
+N=300
 L=5*10**(-6)
 h=L/N
 
@@ -25,8 +25,7 @@ k=(k0*np.cos(theta),k0*np.sin(theta))
 
 maillage = np.arange(N+1)*h
 grid = np.zeros(N+1)
-print(np.size(maillage))
-grid[3:8]=1
+grid[100:250]=1
 m1=np.min(np.where(grid==1))
 m2=np.max(np.where(grid==1))
 
@@ -40,9 +39,9 @@ def fiPrime(X):
     return a*k0*np.exp(X*k0*1j)*1j
 
 def fiseconde(X):
-    return -a*k0**(2)*np.exp(X*k0*1j)
+    return -a*k0**2*np.exp(X*k0*1j)
 
-ui=fi(maillage)
+
 
 
 #Calcul du epsilon r et mu r
@@ -79,15 +78,6 @@ def Sapprox(x,i):
 def S(x):
     return (1-1/mu(x))*fiseconde(x)+k0**2*(epsm-epsilon(x))*fi(x)
 
-n=99+(N-1)*100
-dx=L/n
-x=np.arange(0,L,dx,dtype=complex)
-plt.plot(x,Sapprox(x,2))
-plt.plot(x,Node(x,2))
-plt.plot(x,Sapprox(x,3))
-plt.plot(x,Sapprox(x,4))
-plt.show()
-
 ### Intégration ###
 
 def IntegrateA(i,j):
@@ -109,19 +99,19 @@ def IntegrateB(i):
     dx=2*h/n
     if i == 0 :
         dx=h/99
-        x=np.arange(0,h+dx,dx,dtype=complex)
-        f=Sapprox(x,i)*Node(x,i)
-        return np.sum(f,dtype=complex)*dx +(fi(L)-fi(0))*k0*1j
+        x=np.arange(0,h,dx,dtype=complex)
+        f=S(x)*Node(x,i)
+        return np.sum(f,dtype=complex)*dx
     if i == N:
         dx=h/99
-        x=np.arange(L-h,L+dx,dx,dtype=complex)
-        f=Sapprox(x,i)*Node(x,i)
-        return np.sum(f,dtype=complex)*dx +(fi(L)-fi(0))*k0*1j
+        x=np.arange(L-h,L,dx,dtype=complex)
+        f=S(x)*Node(x,i)
+        return np.sum(f,dtype=complex)*dx
         
         
     else:
-        x=np.arange(h*(i-1),h*(i+1)+dx,dx)
-        f=Sapprox(x,i)*Node(x,i)
+        x=np.arange(h*(i-1),h*(i+1),dx)
+        f=S(x)*Node(x,i)
         return np.sum(f,dtype=complex)*dx 
         
 
@@ -135,7 +125,10 @@ for i in range(N+1):
     for j in range(N+1):
         I=IntegrateA(i,j)
         A[i,j]=I
+A[0,0] += k0*1j
+A[N,N] += k0*1j
 zeta = np.linalg.solve(A, B)
+
 
 ud=0
 
@@ -169,7 +162,7 @@ plt.show()
 
 plt.plot(x,np.real(ui+ud),linewidth=1.2,label="ud + ui",color="#5A9BD5")
 
-square_x = [50*h, 50*h, 65*h, 65*h]
+square_x = [m1*h, m1*h, m2*h, m2*h]
 square_y = [-np.max(ud+ui), np.max(ud+ui), np.max(ud+ui), -np.max(ud+ui)] 
 plt.fill(square_x, square_y, color="grey", alpha=0.2,label="Objet")
 
