@@ -45,24 +45,12 @@ ui=fi(maillage)
 
 #Calcul du epsilon r et mu r
 
-# def EpsilonContinue(x):
-#     if x>= 50*h and x <= 65*h:
-#         return epsd
-#     else: return epsm
-    
-
-# def MuContinue(x):
-#     if x>= 50*h and x <= 65*h:
-#         return mud
-#     else: return 1
-
 def epsilon(X):
     a=np.min(np.where(grid==1))
     b=np.max(np.where(grid==1))
     return np.where((X/h>=a) & (X/h<=b),epsd,epsm)
     
     
-
 def mu(X):
     a=np.min(np.where(grid==1))
     b=np.max(np.where(grid==1))
@@ -70,9 +58,6 @@ def mu(X):
 
 
 #Fonction de base nodale
-
-# def node(i,X):  #fonction discrette
-#     return np.where(X>=i,1,0)
 
 def Node(X,i):  #fonction continue
     X=np.where((X>=h*(i-1)) & (X<=h*(i+1)),X,0)
@@ -94,30 +79,10 @@ def S(x):
     return (1-1/mu(x))*fiseconde(x)+k0**2*(epsm-epsilon(x))*fi(x)
 
 
-# def v(x,i):     #fonction 'continue'
-#     if x >=h*(i-1) and x <= h*i:
-#         return (x/h)-i+1
-#     elif x >h*i and x <= h*(i+1):
-#         return -(x/h)+i+1
-#     else: return 0
-    
-# def vprime(x,i):
-#     if x >=h*(i-1) and x <= h*i:
-#         return 1/h
-#     elif x >h*i and x <= h*(i+1):
-#         return -1/h
-#     else: return 0
-
-
 ### Intégration ###
 
 def IntegrateA(i,j):
     d=np.abs(i-j)
-    
-    # if i>j: #la matrice est symétrique on traitera donc ce cas apres
-    #     return 0 
-    # else:
-    #     pass
     
     if d>=2:
         return 0
@@ -128,10 +93,7 @@ def IntegrateA(i,j):
     x=np.arange(0,L,dx)
     f= NodePrime(x,i)*NodePrime(x,j)/mu(x) + k0**2*epsilon(x)*Node(x,i)*Node(x,j)
     return np.sum(f)*dx
-    # for m in range(n):
-    #     x=h*i+m*dx
-    #     I+= (vprime(x,i)*vprime(x,j)/MuContinue(x) + k0**2*EpsilonContinue(x)*v(x,i)*v(x,j))*dx
-    # return I
+
 
 def IntegrateB(i):
     n=199
@@ -153,11 +115,6 @@ def IntegrateB(i):
         f=Sapprox(x,i)*Node(x,i)
         return np.sum(f)*dx 
         
-    # for m in range(n):
-    #     x=h*i+m*dx
-    #     I+= S(x)*v(x,i)*dx
-
-    # return I
 
 B=np.array([])
 A=np.zeros((N+1,N+1),dtype=complex)
