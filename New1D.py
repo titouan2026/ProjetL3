@@ -2,37 +2,58 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import math
+
+### DebugGing tool ###
+
+# import sys
+
+# if not sys.warnoptions:  #Raise warnings as error
+#     import warnings
+#     warnings.simplefilter("error")
 
 ####initialisation variables####
-
+    
 lambda0=700*10**(-9)
 theta=0
 a=1
-L=15*lambda0 #multiples de longueur d'onde pour pouvoir faire un arange entier
+L=1.8*10**(-6)
+
 n=100 #noeuds par longueur d'onde (100 pour avoir pas de soucis)
 
 epsm=1 #coef mu et epsilon
-epsd=3
+epsd=3+1j
 mud=1
 nm=1
-nd=np.sqrt(np.real(epsd))
+nd=np.sqrt(epsd)
 lambdad=lambda0/nd
-
+rab=(nm-nd)/(nm+nd)
+rbc=(nd-nm)/(nm+nd)
+tab=2*nm/(nm+nd)
+tbc=2*nd/(nm+nd)
 
 k0=2*np.pi/lambda0
 k=(k0*np.cos(theta),k0*np.sin(theta))
+kd=k0*nd
 
 
 #Initialisation de la géométrie de l'objet et du maillage
+
 m1=0.3*L
-m2=0.6*L
-print(lambda0/n,lambdad/n)
-maillage = np.concatenate((np.arange(0, m1, lambda0/n), np.arange(m1, m2, lambdad/n), np.arange(m2, L+lambda0/(2*n), lambda0/n)))
+m2=0.7*L
+
+maillage = np.concatenate((np.linspace(0, m1, math.ceil(m1/(lambda0/n)),endpoint=False), np.linspace(m1, m2, math.ceil((m2-m1)/(lambdad/n)),endpoint=False), np.linspace(m2, L, math.ceil((L-m2)/(lambda0/n)),endpoint=True)))
+
 N=np.size(maillage)-1
 grid = np.zeros(N+1)
 grid[100:200]=1
+ab=np.where(maillage==m1)[0] #indice (python) des interfaces
+bc=np.where(maillage==m2)[0]
 
+rg=(rab+rbc*np.exp(2*1j*kd*(m2-m1)))/(1+rab*rbc*np.exp(2*1j*kd*(m2-m1))) #rapport réfléchie
+tg=(tab*tbc*np.exp(1j*kd*(m2-m1)))/(1+rab*rbc*np.exp(2*1j*kd*(m2-m1))) #rapport transmit
 
+print("rg = {}, tg = {}".format(rg,tg))
 #Calcul du champ initial
 
 def fi(X):
@@ -117,6 +138,7 @@ def S(x):
 K=np.zeros((N+1,N+1),dtype=complex)
 
 for i in range(N):
+
     h=maillage[i+1]-maillage[i] #pas de maillage
     Khat=1/h*np.array([[1,-1],[-1,1]]) #matrice de raideur élémentaire
     K[i:i+2,i:i+2]+=Khat #assemblage de la matrice de raideur
@@ -129,6 +151,7 @@ for i in range(N):
     M[i:i+2,i:i+2]+=k0**2*epsilon(maillage[i])*Mhat #assemblage de la matrice de masse
 
 B=np.zeros(N+1,dtype=complex)
+
 for i in range(N):
     h=maillage[i+1]-maillage[i] #pas de maillage
     Bhat=h/2*np.array([S(maillage[i]),S(maillage[i+1])]) #matrice de vecteur de charge élémentaire
@@ -155,7 +178,12 @@ ui=fi(x)
 
 for i in range(N+1):
     ud+=zeta[i]*Node(x,i)
-    
+
+
+
+r = ud[ab]/ui[ab]
+t = (ud[bc]+ui[bc])/ui[bc]
+print(r,t)
 
 ### Affichage du champ ###
     
@@ -193,7 +221,3 @@ plt.legend(loc='upper left')
 plt.xlim(0, L)
 plt.tight_layout()
 plt.show()
-
-
-
-    
