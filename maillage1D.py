@@ -135,8 +135,8 @@ A=np.where(grid==1)[0][0]
 B=np.where(grid==1)[0][-1]
 
 plt.plot(maillage,Node(maillage,10),linewidth=1,color='black',label='10ième fonction nodale')
-plt.scatter(maillage,[0]*np.size(maillage),color='black',s=10,label='Maillage millieux')
-plt.scatter(maillage[A:B+1],[0]*np.size(np.where(grid==1)),color='red',s=10,label='Maillage objet')
+plt.scatter(maillage,[0]*np.size(maillage),color='black',s=10,label='Noeuds du millieux')
+plt.scatter(maillage[A:B+1],[0]*np.size(np.where(grid==1)),color='red',s=10,label="Noeuds de l'objet")
 plt.ylim(-0.2,1.6)
 c=1.5
 square_x = [m1, m1, m2, m2]
