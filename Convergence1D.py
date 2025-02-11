@@ -54,13 +54,12 @@ for i in range(2,21,2):
     n=n0*i
     maillage = np.concatenate((np.linspace(0, m1, math.ceil(m1/(lambda0/n)),endpoint=False), np.linspace(m1, m2, math.ceil((m2-m1)/(lambdad/n)),endpoint=False), np.linspace(m2, L, math.ceil((L-m2)/(lambda0/n)),endpoint=True)))
 
+    ab=np.where(maillage==m1)[0][0] #indice (python) des interfaces
+    bc=np.where(maillage==m2)[0][0]
+
     N=np.size(maillage)-1
-    NX=np.append(NX,N+1)
     grid = np.zeros(N+1)
-    grid[100:200]=1
-    
-    ab=np.where(maillage==m1)[0] #indice (python) des interfaces
-    bc=np.where(maillage==m2)[0]
+    grid[ab:bc+1]=1
 
     #Calcul du champ initial
 

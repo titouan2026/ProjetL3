@@ -19,7 +19,7 @@ theta=0
 a=1
 L=1.8*10**(-6)
 
-n=100 #noeuds par longueur d'onde (100 pour avoir pas de soucis)
+n=5 #noeuds par longueur d'onde (100 pour avoir pas de soucis)
 
 epsm=1 #coef mu et epsilon
 epsd=3+1j
@@ -41,9 +41,9 @@ m2=0.7*L
 
 maillage = np.concatenate((np.linspace(0, m1, math.ceil(m1/(lambda0/n)),endpoint=False), np.linspace(m1, m2, math.ceil((m2-m1)/(lambdad/n)),endpoint=False), np.linspace(m2, L, math.ceil((L-m2)/(lambda0/n)),endpoint=True)))
 
+
 ab=np.where(maillage==m1)[0][0] #indice (python) des interfaces
 bc=np.where(maillage==m2)[0][0]
-
 N=np.size(maillage)-1
 grid = np.zeros(N+1)
 grid[ab:bc+1]=1
@@ -129,86 +129,22 @@ def S(x):
 
 
 
-### création des matrices ###
-
-K=np.zeros((N+1,N+1),dtype=complex)
-
-for i in range(N):
-
-    h=maillage[i+1]-maillage[i] #pas de maillage
-    Khat=1/h*np.array([[1,-1],[-1,1]]) #matrice de raideur élémentaire
-    K[i:i+2,i:i+2]+=Khat #assemblage de la matrice de raideur
-
-M=np.zeros((N+1,N+1),dtype=complex)
-
-for i in range(N):
-    h=maillage[i+1]-maillage[i] #pas de maillage
-    Mhat=h/6*np.array([[2,1],[1,2]]) #matrice de masse élémentaire
-    M[i:i+2,i:i+2]+=k0**2*epsilon(maillage[i])*Mhat #assemblage de la matrice de masse
-
-B=np.zeros(N+1,dtype=complex)
-
-for i in range(N):
-    h=maillage[i+1]-maillage[i] #pas de maillage
-    Bhat=h/2*np.array([S(maillage[i]),S(maillage[i+1])]) #matrice de vecteur de charge élémentaire
-
-    B[i:i+2]+=Bhat #assemblage du vecteur de charge
-    
-R=np.zeros((N+1,N+1),dtype=complex) #matrice de Robin
-
-R[0,0]=k0*1j
-R[N,N]=k0*1j
-
-T = M-K+R #matrice finale
 
 
-#Résolution du système et calcule du champ ud
+A=np.where(grid==1)[0][0]
+B=np.where(grid==1)[0][-1]
 
-zeta = np.linalg.solve(T, B)
-ud=0
-
-n=100*N
-dx=L/n
-x=np.arange(0,L+dx,dx)
-ui=fi(x)
-
-for i in range(N+1):
-    ud+=zeta[i]*Node(x,i)
-
-
-### Affichage du champ ###
-    
-plt.plot(x,np.real(ud),linewidth=1.2,label="ud",color="#5A9BD5")
-plt.plot(x,np.real(ui),linewidth=1.2,label="ui",color="#E57373")
-
-square_x = [m1, m1, m2, m2]
-c=np.max(np.maximum(np.abs(np.real(ud)),np.abs(np.real(ui))))
-square_y = [-c, c, c, -c] 
-plt.fill(square_x, square_y, color="grey", alpha=0.2,label="Objet")
-plt.text(m1+(m2-m1) / 20, 0.95*c , f'ε = {epsd}', horizontalalignment='left', verticalalignment='top', fontsize=7, color='black',weight='bold',alpha=0.8)    
-
-plt.title("Champ d'une source infinie et d'une source objet")
-plt.xlabel('x in metter')
-plt.ylabel('Intensity')
-plt.legend(loc='upper left')
-plt.xlim(0, L)
-plt.tight_layout()
-plt.show()
-
-
-
-plt.plot(x,np.real(ui+ud),linewidth=1.2,label="ud + ui",color="#5A9BD5")
-
-c=np.max(ud+ui)
+plt.plot(maillage,Node(maillage,10),linewidth=1,color='black',label='10ième fonction nodale')
+plt.scatter(maillage,[0]*np.size(maillage),color='black',s=10,label='Maillage millieux')
+plt.scatter(maillage[A:B+1],[0]*np.size(np.where(grid==1)),color='red',s=10,label='Maillage objet')
+plt.ylim(-0.2,1.6)
+c=1.5
 square_x = [m1, m1, m2, m2]
 square_y = [-c, c, c, -c] 
 plt.fill(square_x, square_y, color="grey", alpha=0.2,label="Objet")
-plt.text(m1+(m2-m1) / 20, 0.95*c , f'ε = {epsd}', horizontalalignment='left', verticalalignment='top', fontsize=7, color='black',weight='bold',alpha=0.8)    
-
-plt.title("Champ total")
+plt.text(m2-(m2-m1) / 20, 0.95*c , f'ε = {epsd}', horizontalalignment='right', verticalalignment='top', fontsize=7, color='black',weight='bold',alpha=0.8)    
 plt.xlabel('x in metter')
-plt.ylabel('Intensity')
+plt.ylabel('f(x)')
 plt.legend(loc='upper left')
-plt.xlim(0, L)
 plt.tight_layout()
 plt.show()
