@@ -50,16 +50,17 @@ grid[ab:bc+1]=1
 
 
 
-#Calcul du champ initial
+#Champ initial
 
-def fi(X):
+def fi(X: np.ndarray | float) -> np.ndarray | float:
     return a*np.exp(k0*X*1j)
 
-def fiPrime(X):
+def fiPrime(X: np.ndarray | float) -> np.ndarray | float:
     return a*k0*np.exp(X*k0*1j)*1j
 
-def fiseconde(X):
+def fiseconde(X: np.ndarray | float) -> np.ndarray | float:
     return -a*k0**2*np.exp(X*k0*1j)
+
 
 
 

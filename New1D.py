@@ -50,19 +50,34 @@ grid[ab:bc+1]=1
 
 
 
-#Calcul du champ initial
+#Champ initial
 
-def fi(X):
+def fi(X: np.ndarray | float) -> np.ndarray | float:
     return a*np.exp(k0*X*1j)
 
-def fiPrime(X):
+def fiPrime(X: np.ndarray | float) -> np.ndarray | float:
     return a*k0*np.exp(X*k0*1j)*1j
 
-def fiseconde(X):
+def fiseconde(X: np.ndarray | float) -> np.ndarray | float:
     return -a*k0**2*np.exp(X*k0*1j)
 
 
+#Epsilon et mu
 
+def Epsilon(x: float) -> complex:
+    
+    if x >= m1 and x <= m2:
+        return epsd
+    else:
+        return epsm
+
+def Mu(x: float) -> complex:
+    
+    if x>= m1 and x <= m2:
+        return mud
+    else:
+        return 1
+    
 def epsilon(X):
     
     return np.where((X>=m1) & (X<=m2),epsd,epsm)
@@ -70,22 +85,6 @@ def epsilon(X):
 def mu(X):
     
     return np.where((X>=m1) & (X<=m2),mud,1)
-
-
-def Epsilon(X):
-    
-    if X >= m1 and X <= m2:
-        return epsd
-    else:
-        return epsm
-
-def Mu(X):
-    
-    if X>= m1 and X <= m2:
-        return mud
-    else:
-        return 1
-
 
 
 #Fonction de base nodale
@@ -124,7 +123,7 @@ def NodePrime(X,i):  #fonction continue
 
 #Calcule de la fonction S
 
-def S(x):
+def S(x: float) -> complex:
     return (1-1/Mu(x))*fiseconde(x)+k0**2*(epsm-Epsilon(x))*fi(x)
 
 

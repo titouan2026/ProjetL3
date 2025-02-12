@@ -17,7 +17,7 @@ import math
 lambda0=700*10**(-9)
 theta=0
 a=1
-L=6*10**(-6)
+L=700*10**(-8)
 
 n0=10 #noeuds par longueur d'onde (100 pour avoir pas de soucis)
 
@@ -39,8 +39,8 @@ kd=k0*nd
 
 #Initialisation de la géométrie de l'objet et du maillage
 
-m1=0.4*L
-m2=0.8*L
+m1=0.1*L
+m2=0.5*L
 
 rg=(rab+rbc*np.exp(2*1j*kd*(m2-m1)))/(1+rab*rbc*np.exp(2*1j*kd*(m2-m1))) #rapport réfléchie théorique
 tg=(tab*tbc*np.exp(1j*kd*(m2-m1)))/(1+rab*rbc*np.exp(2*1j*kd*(m2-m1))) #rapport transmit théorique
@@ -50,8 +50,8 @@ R0=np.array([])
 T0=np.array([])
 NX=np.array([])
 
-for i in range(2,21,2):
-    n=n0*i
+for i in range(2,21,1):
+    n=np.round(n0*i**1.5)
     maillage = np.concatenate((np.linspace(0, m1, math.ceil(m1/(lambda0/n)),endpoint=False), np.linspace(m1, m2, math.ceil((m2-m1)/(lambdad/n)),endpoint=False), np.linspace(m2, L, math.ceil((L-m2)/(lambda0/n)),endpoint=True)))
 
     ab=np.where(maillage==m1)[0][0] #indice (python) des interfaces
@@ -61,16 +61,17 @@ for i in range(2,21,2):
     grid = np.zeros(N+1)
     grid[ab:bc+1]=1
 
-    #Calcul du champ initial
+    #Champ initial
 
-    def fi(X):
+    def fi(X: np.ndarray | float) -> np.ndarray | float:
         return a*np.exp(k0*X*1j)
 
-    def fiPrime(X):
+    def fiPrime(X: np.ndarray | float) -> np.ndarray | float:
         return a*k0*np.exp(X*k0*1j)*1j
 
-    def fiseconde(X):
+    def fiseconde(X: np.ndarray | float) -> np.ndarray | float:
         return -a*k0**2*np.exp(X*k0*1j)
+
 
 
 
@@ -184,15 +185,20 @@ for i in range(2,21,2):
     r = ud[ab]/ui[ab]
     t = (ud[bc]+ui[bc])/ui[bc]
     R0=np.append(R0,r)
+    T0=np.append(T0,t)
+    NX=np.append(NX,N+1)
     
 R0-=rg
+T0-=tg
 
-#plt.plot(np.log(NX),np.log(np.abs(T0)),color="red",label="T")
-plt.scatter(np.log(NX),np.log(np.abs(R0)),color="blue",label="Ur")
-plt.title("convergence 1D")
+
+plt.plot(np.log(NX),np.log(np.abs(T0)),color="red",linewidth=1,label="δ=t_calc-t_theo")
+plt.plot(np.log(NX),np.log(np.abs(R0)),color="blue",linewidth=1,label="δ=r_calc-r_theo")
+plt.scatter(np.log(NX),np.log(np.abs(R0)),s=5,marker="x",c="black")
+plt.scatter(np.log(NX),np.log(np.abs(T0)),s=5,marker="x",c="black") 
+plt.title("convergence 1D des coefficients de reflexion et transmition")
 plt.xlabel("log(N)")
-plt.ylabel("log(abs(Ur_calculé - Ur_théorique))")
-plt.plot(np.log(NX),np.log(np.abs(R0)),color="blue")
+plt.ylabel("log(abs(δ))")
 plt.legend()
 plt.show()
 
