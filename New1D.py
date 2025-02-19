@@ -17,12 +17,12 @@ import math
 lambda0=700*10**(-9)
 theta=0
 a=1
-L=1.8*10**(-6)
+L=0.4*10**(-5)
 
 n=100 #noeuds par longueur d'onde (100 pour avoir pas de soucis)
 
 epsm=1 #coef mu et epsilon
-epsd=3+1j
+epsd=3+0.1j
 mud=1
 nm=1
 nd=np.sqrt(epsd)
@@ -89,7 +89,7 @@ def mu(X):
 
 #Fonction de base nodale
 
-def Node(X,i):  #fonction continue
+def Node(X,i):
     try:
         if i == 0: raise IndexError
         X=np.where((X>=maillage[i-1]) & (X<=maillage[i+1]),X,0)
@@ -100,23 +100,18 @@ def Node(X,i):  #fonction continue
             return np.where(X<=maillage[i+1],(maillage[i+1]-X)/(maillage[i+1]-maillage[i]),0)
         except:
             return np.where(X>=maillage[i-1] ,(X-maillage[i-1])/(maillage[i]-maillage[i-1]),0)
-            
-        
-def NodePrime(X,i):  #fonction continue
-     
+                
+def NodePrime(X,i):  
     try: 
         if i == 0: raise IndexError
         X=np.where((X>=maillage[i-1]) & (X<=maillage[i+1]),X,0)
         X= np.where((X>maillage[i-1]) & (X< maillage[i]),1/(maillage[i]-maillage[i-1]),X)
         return np.where((X>maillage[i]) & (X<=maillage[i+1]),-1/(maillage[i+1]-maillage[i]),X)
-    
     except:
-        print('cc')
         try:
             return np.where(X<=maillage[i+1],-1/(maillage[i+1]-maillage[i]),0)
         
         except:
-            print('cc')
             return np.where(X>maillage[i-1],1/(maillage[i]-maillage[i-1]),0)
 
 
@@ -184,7 +179,8 @@ square_x = [m1, m1, m2, m2]
 c=np.max(np.maximum(np.abs(np.real(ud)),np.abs(np.real(ui))))
 square_y = [-c, c, c, -c] 
 plt.fill(square_x, square_y, color="grey", alpha=0.2,label="Objet")
-plt.text(m1+(m2-m1) / 20, 0.95*c , f'ε = {epsd}', horizontalalignment='left', verticalalignment='top', fontsize=7, color='black',weight='bold',alpha=0.8)    
+plt.text(m1+(m2-m1) / 20, 0.95*c , f'ε = {epsd}', horizontalalignment='left',
+         verticalalignment='top', fontsize=7, color='black',weight='bold',alpha=0.8)    
 
 plt.title("Champ d'une source infinie et d'une source objet")
 plt.xlabel('x in metter')
@@ -202,7 +198,8 @@ c=np.max(ud+ui)
 square_x = [m1, m1, m2, m2]
 square_y = [-c, c, c, -c] 
 plt.fill(square_x, square_y, color="grey", alpha=0.2,label="Objet")
-plt.text(m1+(m2-m1) / 20, 0.95*c , f'ε = {epsd}', horizontalalignment='left', verticalalignment='top', fontsize=7, color='black',weight='bold',alpha=0.8)    
+plt.text(m1+(m2-m1) / 20, 0.95*c , f'ε = {epsd}', horizontalalignment='left',
+         verticalalignment='top', fontsize=7, color='black',weight='bold',alpha=0.8)    
 
 plt.title("Champ total")
 plt.xlabel('x in metter')

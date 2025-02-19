@@ -34,16 +34,18 @@ tbc=2*nd/(nm+nd)
 
 k0=2*np.pi/lambda0
 k=(k0*np.cos(theta),k0*np.sin(theta))
-kd=k0*nd
 
 
 #Initialisation de la géométrie de l'objet et du maillage
 
-m1=0.1*L
-m2=0.5*L
+m1=0.1*L #debut de l'objet
+m2=0.5*L #fin de l'objet
+kd=k0*nd
 
-rg=(rab+rbc*np.exp(2*1j*kd*(m2-m1)))/(1+rab*rbc*np.exp(2*1j*kd*(m2-m1))) #rapport réfléchie théorique
-tg=(tab*tbc*np.exp(1j*kd*(m2-m1)))/(1+rab*rbc*np.exp(2*1j*kd*(m2-m1))) #rapport transmit théorique
+rg=(rab+rbc*np.exp(2*1j*kd*(m2-m1)))/\
+(1+rab*rbc*np.exp(2*1j*kd*(m2-m1))) #rapport réfléchie théorique
+tg=(tab*tbc*np.exp(1j*kd*(m2-m1)))/\
+(1+rab*rbc*np.exp(2*1j*kd*(m2-m1))) #rapport transmit théorique
 
 
 R0=np.array([])
@@ -102,7 +104,7 @@ for i in range(2,21,1):
 
     #Fonction de base nodale
 
-    def Node(X,i):  #fonction continue
+    def Node(X,i):
         try:
             if i == 0: raise IndexError
             X=np.where((X>=maillage[i-1]) & (X<=maillage[i+1]),X,0)
@@ -115,7 +117,7 @@ for i in range(2,21,1):
                 return np.where(X>=maillage[i-1] ,(X-maillage[i-1])/(maillage[i]-maillage[i-1]),0)
                 
             
-    def NodePrime(X,i):  #fonction continue
+    def NodePrime(X,i):
         
         try: 
             if i == 0: raise IndexError
@@ -197,8 +199,8 @@ plt.plot(np.log(NX),np.log(np.abs(R0)),color="blue",linewidth=1,label="δ=r_calc
 plt.scatter(np.log(NX),np.log(np.abs(R0)),s=5,marker="x",c="black")
 plt.scatter(np.log(NX),np.log(np.abs(T0)),s=5,marker="x",c="black") 
 plt.title("convergence 1D des coefficients de reflexion et transmition")
-plt.xlabel("log(N)")
-plt.ylabel("log(abs(δ))")
+plt.xlabel("logN")
+plt.ylabel("log|δ|")
 plt.legend()
 plt.show()
 

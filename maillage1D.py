@@ -62,8 +62,6 @@ def fiseconde(X: np.ndarray | float) -> np.ndarray | float:
     return -a*k0**2*np.exp(X*k0*1j)
 
 
-
-
 def epsilon(X):
     
     return np.where((X>=m1) & (X<=m2),epsd,epsm)
@@ -91,7 +89,7 @@ def Mu(X):
 
 #Fonction de base nodale
 
-def Node(X,i):  #fonction continue
+def Node(X,i):  
     try:
         if i == 0: raise IndexError
         X=np.where((X>=maillage[i-1]) & (X<=maillage[i+1]),X,0)
@@ -104,7 +102,7 @@ def Node(X,i):  #fonction continue
             return np.where(X>=maillage[i-1] ,(X-maillage[i-1])/(maillage[i]-maillage[i-1]),0)
             
         
-def NodePrime(X,i):  #fonction continue
+def NodePrime(X,i):  
      
     try: 
         if i == 0: raise IndexError
@@ -113,12 +111,10 @@ def NodePrime(X,i):  #fonction continue
         return np.where((X>maillage[i]) & (X<=maillage[i+1]),-1/(maillage[i+1]-maillage[i]),X)
     
     except:
-        print('cc')
         try:
             return np.where(X<=maillage[i+1],-1/(maillage[i+1]-maillage[i]),0)
         
         except:
-            print('cc')
             return np.where(X>maillage[i-1],1/(maillage[i]-maillage[i-1]),0)
 
 
