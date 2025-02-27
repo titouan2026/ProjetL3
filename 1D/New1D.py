@@ -27,6 +27,7 @@ mud=1
 nm=1
 nd=np.sqrt(epsd)
 lambdad=lambda0/nd
+lambdadreel=lambda0/np.real(nd)
 
 
 k0=2*np.pi/lambda0
@@ -39,7 +40,7 @@ kd=k0*nd
 m1=0.3*L
 m2=0.7*L
 
-maillage = np.concatenate((np.linspace(0, m1, math.ceil(m1/(lambda0/n)),endpoint=False), np.linspace(m1, m2, math.ceil((m2-m1)/(lambdad/n)),endpoint=False), np.linspace(m2, L, math.ceil((L-m2)/(lambda0/n)),endpoint=True)))
+maillage = np.concatenate((np.linspace(0, m1, math.ceil(m1/(lambda0/n)),endpoint=False), np.linspace(m1, m2, math.ceil((m2-m1)/(lambdadreel/n)),endpoint=False), np.linspace(m2, L, math.ceil((L-m2)/(lambda0/n)),endpoint=True)))
 
 ab=np.where(maillage==m1)[0][0] #indice (python) des interfaces
 bc=np.where(maillage==m2)[0][0]
