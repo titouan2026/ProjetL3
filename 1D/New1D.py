@@ -3,6 +3,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from scipy.sparse.linalg import spsolve
+from scipy.sparse import csc_matrix
+
 
 ### DebugGing tool ###
 
@@ -13,7 +16,7 @@ import math
 #     warnings.simplefilter("error")
 
 ####initialisation variables####
-    
+     
 lambda0=700*10**(-9)
 theta=0
 a=1
@@ -124,7 +127,7 @@ def S(x: float) -> complex:
 
 
 
-### création des matrices ###
+### création des matrices et vecteurs ###
 
 K=np.zeros((N+1,N+1),dtype=complex)
 
@@ -159,7 +162,7 @@ T = M-K+R #matrice finale
 
 #Résolution du système et calcule du champ ud
 
-zeta = np.linalg.solve(T, B)
+zeta = spsolve(csc_matrix(T), B)
 ud=0
 
 n=100*N
