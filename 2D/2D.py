@@ -21,12 +21,14 @@ import permitivity as perm
 #     import warnings
 #     warnings.simplefilter("error")
 
+#######################
+
 ####initialisation variables####
     
 lambda0=500e-9
 theta=np.pi/6
 a=1
-R=1e-6
+R=1.1e-6
 
 n=10 #noeuds par longueur d'onde (100 pour avoir pas de soucis)
 
@@ -72,7 +74,7 @@ cells = maillage.cells_dict["triangle"]
 
 X=points[:,0]
 Y=points[:,1]
-XY=np.meshgrid(X,Y)
+# XY=np.meshgrid(X,Y)
 
 # Sortedx=np.sort(np.unique(X))
 # Sortedy=np.sort(np.unique(Y))
@@ -218,10 +220,11 @@ Z=np.zeros(length,dtype=complex)
 for i in range(length):
 
     Z[i]=zeta[i]
-
+Z+= fi(points.T)
 
 
 print("Start plotting")
+ 
 x1=0.3*R
 y1=0.2*R
 x2=0.3*R
@@ -231,8 +234,7 @@ y3=-0.2*R
 x4=-0.3*R
 y4=0.2*R
 
-N=len(X)
-nx = 2000 #peut créé des problèmes si N est trop grand
+nx = 2000 #peut créé des problèmes si nx est trop grand
 ny=nx
 
 xg = np.linspace(X.min(), X.max(), nx)

@@ -61,6 +61,7 @@ def CreateMesh(R,nm,nd,lambda0,n,x1,y1,x2,y2,x3,y3,x4,y4):
     gmsh.model.mesh.generate(2)
 
     gmsh.write("C:/Users/PC/Desktop/cours/ProjetL3/Meshes/{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}_{}.msh".format(R, nm, nd, lambda0, n, x1, y1, x2, y2, x3, y3, x4, y4))
+    gmsh.fltk.run()
     gmsh.finalize()
 
 def GetData(R,nm,nd,lambda0,n,x1,y1,x2,y2,x3,y3,x4,y4):
